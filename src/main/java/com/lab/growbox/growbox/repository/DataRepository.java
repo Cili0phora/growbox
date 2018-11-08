@@ -4,6 +4,8 @@ import com.lab.growbox.growbox.entity.Data;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface  DataRepository extends CrudRepository<Data, Long> {
     @Override
@@ -13,7 +15,7 @@ public interface  DataRepository extends CrudRepository<Data, Long> {
     boolean existsById(Long aLong);
 
     @Override
-    Iterable<Data> findAll();
+    List<Data> findAll();
 
     @Override
     void delete(Data data);

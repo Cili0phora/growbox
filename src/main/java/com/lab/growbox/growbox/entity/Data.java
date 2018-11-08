@@ -86,4 +86,16 @@ public class Data {
     public void setAirHum(int airHum) {
         this.airHum = airHum;
     }
+
+    @Override
+    public String toString() {
+        return "Data{" +
+                "id=" + id +
+                ", date=" + date +
+                ", time=" + time +
+                ", temperature=" + temperature +
+                ", grountHum=" + grountHum +
+                ", airHum=" + airHum +
+                '}';
+    }
 }
