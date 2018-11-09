@@ -27,7 +27,8 @@ public class DataLoader  implements ApplicationRunner {
             data.setDate(new Date(2018, 4, 4));
             data.setTime(new Time(11, 20, 00));
             data.setTemperature(20);
-            data.setGrountHum(3);
+            data.setGroundHum(3);
+            data.setWaterLevel(60);
             Data saved = dataRepository.save(data);
             System.out.println("SAVE: " + saved.toString());
         }

@@ -16,24 +16,27 @@ public class Data {
     private Date date;
     private Time time;
     private float temperature;
-    private int grountHum;
+    private int groundHum;
     private int airHum;
+    private int waterLevel;
 
-    public Data(int id, Date date, Time time, float temperature, int grountHum, int airHum) {
+    public Data(int id, Date date, Time time, float temperature, int groundHum, int airHum, int waterLevel) {
         this.id = id;
         this.date = date;
         this.time = time;
         this.temperature = temperature;
-        this.grountHum = grountHum;
+        this.groundHum = groundHum;
         this.airHum = airHum;
+        this.waterLevel = waterLevel;
     }
 
-    public Data(Date date, Time time, float temperature, int grountHum, int airHum) {
+    public Data(Date date, Time time, float temperature, int groundHum, int airHum, int waterLevel) {
         this.date = date;
         this.time = time;
         this.temperature = temperature;
-        this.grountHum = grountHum;
+        this.groundHum = groundHum;
         this.airHum = airHum;
+        this.waterLevel = waterLevel;
     }
 
     public Data() {
@@ -71,20 +74,28 @@ public class Data {
         this.temperature = temperature;
     }
 
-    public int getGrountHum() {
-        return grountHum;
-    }
-
-    public void setGrountHum(int grountHum) {
-        this.grountHum = grountHum;
-    }
-
     public int getAirHum() {
         return airHum;
     }
 
     public void setAirHum(int airHum) {
         this.airHum = airHum;
+    }
+
+    public int getGroundHum() {
+        return groundHum;
+    }
+
+    public void setGroundHum(int groundHum) {
+        this.groundHum = groundHum;
+    }
+
+    public int getWaterLevel() {
+        return waterLevel;
+    }
+
+    public void setWaterLevel(int waterLevel) {
+        this.waterLevel = waterLevel;
     }
 
     @Override
@@ -94,8 +105,9 @@ public class Data {
                 ", date=" + date +
                 ", time=" + time +
                 ", temperature=" + temperature +
-                ", grountHum=" + grountHum +
+                ", groundHum=" + groundHum +
                 ", airHum=" + airHum +
+                ", waterLevel=" + waterLevel +
                 '}';
     }
 }
