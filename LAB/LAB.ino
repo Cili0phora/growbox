@@ -1,44 +1,96 @@
-#include <Wire.h>
-#include "DHT.h"
+/*
+Сделать:
+  - таймер, по которому будет управляться полив
+  - предусмотреть сохранение данных о растениях
+  - предусм. возможность подключения нескольких растений (и компл. датчиков)
+  - логгирование на флешку, пока нет подключение к управляющему устройству
+*/
+
+#include <DHT.h>
+#include <DS3231.h>
+
+#define DHTTYPE DHT21   // DHT 21 (AM2301)
 
 #define ECHOPIN 9
 #define TRIGPIN 8 
 #define DHTPIN 2
 
-#define DHTTYPE DHT21   // DHT 21 (AM2301)
-// Connect pin 1 (on the left) of the sensor to +5V
-// Connect pin 2 of the sensor to whatever your DHTPIN is
-// Connect pin 4 (on the right) of the sensor to GROUND
-// Connect a 10K resistor from pin 2 (data) to pin 1 (power) of the sensor
 DHT tempHudtmSensor(DHTPIN, DHTTYPE);
+DS3231  rtc(SDA, SCL);
 
+byte errors = 0; // код ошибки (0 - ok, 1 - no water, 2 -no sensors avaiable, 3 - no connection)
+
+// состояние растения
 struct PlantStateData {
-  String date;
-  String currentTime;
-  float temperature;
-  int groundHum;
-  int airHum;
+  byte   plantID;         // номер растения
+  String currentDate;     // текущая дата
+  String currentTime;     // текущее время
+  float  temperature;     // температура воздуха
+  byte   groundHum;       // влажность почвы
+  byte   airHum;          // влажность воздуха
+  byte   bright;          // освещенность
 };
 
+// состояние поливалки
+struct DeviceStateData {
+  byte waterLevel; 
+};
+
+// данные о растении, необх для работы поливалки
+struct PlantInfo {
+  /*
+    номер растения
+    периодичность полива
+    при каких условиях поливать принудительно
+  */
+};
+//---------------------------------------------------------------------------------------
+//INITIALIZATION
 void setup() {
   Serial.begin(9600);
-  
+
+  rtc.begin();
   tempHudtmSensor.begin();
   
   pinMode(ECHOPIN, INPUT);
   pinMode(TRIGPIN, OUTPUT);
 }
 
-//данные о растении
+//MAIN LOOP
+void loop() {
+  sendDebugInfo();
+  delay(1000);
+}
+
+// временная функция ----------------------------------------------------------------
+void sendDebugInfo(){
+  float h = tempHudtmSensor.readHumidity();
+  float t = tempHudtmSensor.readTemperature();
+  Serial.print("Temp ");
+  Serial.print(t);
+  Serial.print(" hadtm ");
+  Serial.print(h);
+  Serial.print(" dist ");
+  Serial.println(checkWaterLevel());
+
+   // Send date
+  Serial.print(rtc.getDateStr());
+  Serial.print(" ");
+  // Send time
+  Serial.println(rtc.getTimeStr());
+}
+//----------------------------------------------------------------------------------------
+//отправка данных о растении
 void sendPlantData(PlantStateData data){
   Serial.println();
 }
 
-//состояние устройства
+//отправка данных о состоянии устройства
 void sendStatusData(){
   Serial.println();
 }
 
+// проверка остатка воды
 float checkWaterLevel(){
   float duration, cm; 
   digitalWrite(TRIGPIN, LOW); 
@@ -50,21 +102,4 @@ float checkWaterLevel(){
   cm = duration / 58;
   return cm;
   delay(100);
-}
-
-void sendDebugInfo(){
-  float h = tempHudtmSensor.readHumidity();
-  float t = tempHudtmSensor.readTemperature();
-  Serial.print("Temp ");
-  Serial.print(t);
-  Serial.print(" hadtm ");
-  Serial.print(h);
-  Serial.print(" dist");
-  Serial.println(checkWaterLevel());
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-  sendDebugInfo();
-  delay(1000);
 }
