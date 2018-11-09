@@ -23,4 +23,12 @@ public class MainController {
         model.addAttribute("name", data.getTemperature());
         return "halo";
     }
+
+        @GetMapping("/")
+    public String greeting(Model model) {
+        List<Data> dataList = dataRepository.findAll();
+        Data data = dataList.get(0);
+        model.addAttribute("waterLevel", data.getWaterLevel());
+        return "index";
+    }
 }

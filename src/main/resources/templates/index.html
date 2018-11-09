@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Getting Started: Serving Web Content</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="./resources/css/bootstrap.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./resources/css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <a class="navbar-brand mb-0 h1" href="#">
+            <img src="./resources/img/leaf.svg" width="25px">
+            <span>Growbox</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-item nav-link active" href="#">Статистика</a>
+                <a class="nav-item nav-link" href="#">Настройки</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <h2>Статистика</h2>
+        <span>Уровень воды</span>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar"
+                 th:style="'width:' + ${waterLevel} + '%'"
+                 aria-valuemax="100"
+                 th:text="${waterLevel} + '%'">
+            </div>
+
+        </div>
+    </div>
+
+    <script src="./resources/js/jquery-3.3.1.min.js"></script>
+    <script src="./resources/js/bootstrap.min.js"></script>
+</body>
+</html>
