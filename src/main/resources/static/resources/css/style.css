@@ -11,3 +11,7 @@ h6 {
 .progress {
     margin-top: 2px;
 }
+
+table {
+    border-bottom: 1px solid #dee2e6;
+}

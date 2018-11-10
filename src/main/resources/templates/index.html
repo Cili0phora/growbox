@@ -28,17 +28,35 @@
         <h2>Статистика</h2>
         <div class="row">
             <div class="col">
-                    <span>Уровень воды</span>
+                    <span>Уровень воды в ёмкости</span>
                     <div class="progress">
                         <div
-                            th:class="'progress-bar ' + ${waterLevel <= 10 ? 'bg-danger': waterLevel <= 30 ? 'bg-warning' : ''}" role="progressbar"
-                            th:style="'width:' + ${waterLevel} + '%'"
+                            th:class="'progress-bar ' + ${data.waterLevel <= 10 ? 'bg-danger': data.waterLevel <= 30 ? 'bg-warning' : ''}" role="progressbar"
+                            th:style="'width:' + ${data.waterLevel} + '%'"
                             aria-valuemax="100"
-                            th:text="${waterLevel} + '%'">
+                            th:text="${data.waterLevel} + '%'">
                         </div>
         
                     </div>
             </div>
+        </div>
+        <div class="row">
+            <table class="table col">
+                <tbody>
+                <tr>
+                    <th scope="row">Влажность почвы</th>
+                    <td th:text="${data.groundHum}"></td>
+                </tr>
+                <tr>
+                    <th scope="row">Влажность воздуха</th>
+                    <td th:text="${data.airHum}"></td>
+                </tr>
+                <tr>
+                    <th scope="row">Температура воздуха</th>
+                    <td th:text = "${data.temperature} + '&#8451;'"></td>
+                </tr>
+                </tbody>
+            </table>
         </div>
         <div class="row">
             <div class="col-sm-6">

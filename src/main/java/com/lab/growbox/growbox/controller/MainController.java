@@ -46,8 +46,7 @@ public class MainController {
             airHum[i] = d.getAirHum();
             labels[i] = d.getTime().toString();
         }
-
-        model.addAttribute("waterLevel", data.getWaterLevel());
+        model.addAttribute("data", data);
         model.addAttribute("groundHum", Arrays.toString(groundHum));
         model.addAttribute("temperature", Arrays.toString(temperature));
         model.addAttribute("airHum", Arrays.toString(airHum));
