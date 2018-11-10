@@ -18,18 +18,15 @@ public class MainController {
     @Autowired
     private DataRepository dataRepository;
 
-    @GetMapping("/halo")
-    public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
-        List<Data> dataList = dataRepository.findAll();
-        Data data = dataList.get(0);
-        model.addAttribute("name", data.getTemperature());
-        return "halo";
+    @GetMapping("/settings")
+    public String settings(Model model) {
+        return "settings";
     }
 
     private Gson gson = new Gson();
 
     @GetMapping("/")
-    public String greeting(Model model) {
+    public String index(Model model) {
         List<Data> dataList = dataRepository.findTop5();
         dataList.forEach(System.out::println);
         Data data = dataList.get(dataList.size() - 1);
