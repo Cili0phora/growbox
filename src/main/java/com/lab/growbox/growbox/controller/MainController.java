@@ -18,11 +18,6 @@ public class MainController {
     @Autowired
     private DataRepository dataRepository;
 
-    @GetMapping("/settings")
-    public String settings(Model model) {
-        return "settings";
-    }
-
     private Gson gson = new Gson();
 
     @GetMapping("/")
@@ -43,6 +38,7 @@ public class MainController {
             airHum[i] = d.getAirHum();
             labels[i] = d.getTime().toString();
         }
+
         model.addAttribute("data", data);
         model.addAttribute("groundHum", Arrays.toString(groundHum));
         model.addAttribute("temperature", Arrays.toString(temperature));
@@ -50,4 +46,10 @@ public class MainController {
         model.addAttribute("labels", gson.toJson(labels));
         return "index";
     }
+
+    @GetMapping("/settings")
+    public String settings(Model model) {
+        return "settings";
+    }
+
 }

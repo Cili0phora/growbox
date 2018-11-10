@@ -23,10 +23,13 @@
         </form>
     </nav>
     <div class="container">
-        <h2>Статистика</h2>
         <div class="row">
             <div class="col">
-                    <span>Уровень воды в ёмкости</span>
+                    <span
+                        th:text="${data.waterLevel > 30 ? 'Уровень воды в ёмкости' : 'Внимание! Низкий уровень воды в ёмкости'}"
+                        th:class="${data.waterLevel <= 30 ? 'text-danger': ''}"
+                    >
+                    </span>
                     <div class="progress">
                         <div
                             th:class="'progress-bar ' + ${data.waterLevel <= 10 ? 'bg-danger': data.waterLevel <= 30 ? 'bg-warning' : ''}" role="progressbar"
