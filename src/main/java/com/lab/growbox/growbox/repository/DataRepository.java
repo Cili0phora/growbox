@@ -1,6 +1,7 @@
 package com.lab.growbox.growbox.repository;
 
 import com.lab.growbox.growbox.entity.Data;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -19,4 +20,10 @@ public interface  DataRepository extends CrudRepository<Data, Long> {
 
     @Override
     void delete(Data data);
+
+    @Query(value = "SELECT * FROM (\n" +
+            "    SELECT * FROM data ORDER BY id DESC LIMIT 5\n" +
+            ") sub\n" +
+            "ORDER BY id ASC", nativeQuery = true)
+    List<Data> findTop5();
 }

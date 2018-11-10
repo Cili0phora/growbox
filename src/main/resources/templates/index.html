@@ -3,8 +3,9 @@
 <head>
     <title>Getting Started: Serving Web Content</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="stylesheet" href="./resources/css/bootstrap.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="5" />
+    <link rel="stylesheet" href="./resources/css/bootstrap.css">
     <link rel="stylesheet" href="./resources/css/style.css">
 </head>
 <body>
@@ -25,18 +26,33 @@
     </nav>
     <div class="container">
         <h2>Статистика</h2>
-        <span>Уровень воды</span>
-        <div class="progress">
-            <div class="progress-bar" role="progressbar"
-                 th:style="'width:' + ${waterLevel} + '%'"
-                 aria-valuemax="100"
-                 th:text="${waterLevel} + '%'">
+        <div class="row">
+            <div class="col">
+                    <span>Уровень воды</span>
+                    <div class="progress">
+                        <div
+                            th:class="'progress-bar ' + ${waterLevel <= 10 ? 'bg-danger': waterLevel <= 30 ? 'bg-warning' : ''}" role="progressbar"
+                            th:style="'width:' + ${waterLevel} + '%'"
+                            aria-valuemax="100"
+                            th:text="${waterLevel} + '%'">
+                        </div>
+        
+                    </div>
             </div>
-
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <h6>Почва</h6>
+                <canvas id="ground" width="400" height="400" th:data="${groundHum}" th:labels="${groundHumLabels}">
+                </canvas>
+            </div>
+            <div class="col-sm-6"></div>
         </div>
     </div>
 
     <script src="./resources/js/jquery-3.3.1.min.js"></script>
     <script src="./resources/js/bootstrap.min.js"></script>
+    <script src="./resources/js/Chart.min.js"></script>
+    <script src="./resources/js/chart-settings.js"></script>
 </body>
 </html>
