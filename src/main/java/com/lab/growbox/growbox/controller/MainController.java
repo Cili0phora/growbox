@@ -33,17 +33,25 @@ public class MainController {
         List<Data> dataList = dataRepository.findTop5();
         dataList.forEach(System.out::println);
         Data data = dataList.get(dataList.size() - 1);
+
         int[] groundHum = new int[dataList.size()];
-        String[] groundHumLabels = new String[dataList.size()];
+        float[] temperature = new float[dataList.size()];
+        int[] airHum = new int[dataList.size()];
+        String[] labels = new String[dataList.size()];
+
         for (int i = 0; i<=dataList.size()-1; i++) {
-            groundHum[i] = dataList.get(i).getGroundHum();
-            groundHumLabels[i] = dataList.get(i).getTime().toString();
+            Data d = dataList.get(i);
+            groundHum[i] = d.getGroundHum();
+            temperature[i] = d.getTemperature();
+            airHum[i] = d.getAirHum();
+            labels[i] = d.getTime().toString();
         }
-        System.out.println(gson.toJson(groundHumLabels));
-        System.out.println(Arrays.toString(groundHum));
+
         model.addAttribute("waterLevel", data.getWaterLevel());
         model.addAttribute("groundHum", Arrays.toString(groundHum));
-        model.addAttribute("groundHumLabels", gson.toJson(groundHumLabels));
+        model.addAttribute("temperature", Arrays.toString(temperature));
+        model.addAttribute("airHum", Arrays.toString(airHum));
+        model.addAttribute("labels", gson.toJson(labels));
         return "index";
     }
 }

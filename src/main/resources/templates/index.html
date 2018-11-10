@@ -4,7 +4,7 @@
     <title>Getting Started: Serving Web Content</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="5" />
+    <!--<meta http-equiv="refresh" content="5" />-->
     <link rel="stylesheet" href="./resources/css/bootstrap.css">
     <link rel="stylesheet" href="./resources/css/style.css">
 </head>
@@ -43,10 +43,18 @@
         <div class="row">
             <div class="col-sm-6">
                 <h6>Почва</h6>
-                <canvas id="ground" width="400" height="400" th:data="${groundHum}" th:labels="${groundHumLabels}">
+                <canvas id="ground" width="400" height="400" th:data="${groundHum}" th:labels="${labels}">
                 </canvas>
             </div>
-            <div class="col-sm-6"></div>
+            <div class="col-sm-6">
+                <h6>Воздух</h6>
+                <canvas
+                        id="air" width="400" height="400"
+                        th:temperature="${temperature}"
+                        th:airHum="${airHum}"
+                        th:labels="${labels}">
+                </canvas>
+            </div>
         </div>
     </div>
 
