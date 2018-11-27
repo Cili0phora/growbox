@@ -15,6 +15,10 @@
 #define TRIGPIN 8 
 #define DHTPIN 2
 
+#define WATERING_PIN 3
+#define
+
+
 DHT tempHudtmSensor(DHTPIN, DHTTYPE);
 DS3231  rtc(SDA, SCL);
 
@@ -33,15 +37,20 @@ struct PlantStateData {
 
 // состояние поливалки
 struct DeviceStateData {
-  byte waterLevel; 
+  byte   waterLevel;      // уровень воды
 };
 
 // данные о растении, необх для работы поливалки
 struct PlantInfo {
+  byte plantID;                    // номер растения
+  int  wateringFrequency;          // частота полива
+  int  wateringGroundHumThreshold; // условия полива по влажности почвы
+  int  wateringAitHumThreshold;    // условия полива по влажности воздуха
   /*
     номер растения
     периодичность полива
     при каких условиях поливать принудительно
+    byte - 0..255
   */
 };
 //---------------------------------------------------------------------------------------
@@ -90,6 +99,18 @@ void sendStatusData(){
   Serial.println();
 }
 
+//получение данных о новом растении
+void getPlantData(){
+  
+}
+
+
+//полив
+void watering(byte wateringPort){
+  
+}
+
+//-------------------------------------------------------------------------------
 // проверка остатка воды
 float checkWaterLevel(){
   float duration, cm; 
@@ -102,4 +123,9 @@ float checkWaterLevel(){
   cm = duration / 58;
   return cm;
   delay(100);
+}
+
+// проверка яркости 
+float checkBrightness(){
+  
 }
