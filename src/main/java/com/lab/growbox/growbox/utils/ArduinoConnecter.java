@@ -13,21 +13,10 @@ public class ArduinoConnecter extends Thread {
         Arduino arduino = new Arduino("COM7", 9600);
         boolean connected = arduino.openConnection();
         System.out.println("Соединение установлено: " + connected);
+
         while (true) {
-
-            System.out.println("data:");
-
-//            if (scanner.hasNext()) {
-
-                String s = scanner.nextLine();
-
-                System.out.println(s);
-//            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            String s = arduino.serialRead();
+            System.out.println(s);
         }
     }
 }
