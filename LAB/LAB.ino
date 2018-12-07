@@ -4,15 +4,15 @@
 #include <ArduinoJson.h>
 // DATA STRUCTURES ------------------------------------------------------------
 // состояние растения
-struct PlantStateData {
-  byte   plantID;         // номер растения
-  String currentDate;     // текущая дата
-  String currentTime;     // текущее время
-  float  temperature;     // температура воздуха
-  byte   groundHum;       // влажность почвы
-  byte   airHum;          // влажность воздуха
-  byte   bright;          // освещенность
-};
+//struct PlantStateData {
+//  byte   plantID;         // номер растения
+//  String currentDate;     // текущая дата
+//  String currentTime;     // текущее время
+//  float  temperature;     // температура воздуха
+//  int    groundHum;       // влажность почвы
+//  float  airHum;          // влажность воздуха
+//  float  bright;          // освещенность
+//};
 
 // состояние поливалки
 struct DeviceStateData {
@@ -28,13 +28,6 @@ struct PlantInfo {
   int  wateringAitHumThreshold;    // условия полива по влажности воздуха
 };
 
-/*
-  Сделать:
-  - таймер, по которому будет управляться полив
-  - предусмотреть сохранение данных о растениях
-  - предусм. возможность подключения нескольких растений (и компл. датчиков)
-  - логгирование на флешку, пока нет подключение к управляющему устройству
-*/
 // VARIABLES & CONST -------------------------------------------------------------------------
 #define DHTTYPE DHT21   // DHT 21 (AM2301)
 
@@ -63,6 +56,19 @@ boolean hasErrorsWhileWatering = false;
 DeviceStateData currentDevState; // данные о состоянии поливалки
 PlantInfo       currentPlantInfo; // данные о подопечном растении
 
+//ARDUINO JSON
+const int plantCapacity = JSON_OBJECT_SIZE(10);
+
+//TODO ПЕРЕДЕЛАТЬ ЭТО ВСЕ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//ПОЛУЧЕНИЕ ДАННЫХ ОТ ПРИЛОЖЕНИЯ (BY GYVER)
+#define PARSE_AMOUNT 5       // число значений в массиве, который хотим получить
+#define INPUT_AMOUNT 80      // максимальное количество символов в пакете, который идёт в сериал
+char inputData[INPUT_AMOUNT];  // массив входных значений (СИМВОЛЫ)
+int intData[PARSE_AMOUNT];     // массив численных значений после парсинга
+boolean recievedFlag;
+boolean getStarted;
+byte index;
+String string_convert;
 //---------------------------------------------------------------------------------------
 //INITIALIZATION
 void setup() {
@@ -79,15 +85,27 @@ void setup() {
   pinMode(STAT_LED_WATER, OUTPUT);
   pinMode(STAT_LED_NOCONNECT, OUTPUT);
 
+  currentPlantInfo.plantID = 0;
+  currentPlantInfo.wateringFrequency = 0;
+  currentPlantInfo.wateringGroundHumThreshold = 0;
+  currentPlantInfo.wateringAitHumThreshold = 0;
+
   checkState();
 }
 
 //MAIN LOOP
 void loop() {
-  sendDebugInfo();
-  delay(1000);
-
+//  sendDebugInfo();
+  makeAndSendPlantData();
   checkState();
+
+  parsing();       // функция парсинга
+  if (recievedFlag) {                           // если получены данные
+    recievedFlag = false;
+    // ЗАПИХИВАЕМ ДАННЫЕ В ПАЧКУ О РАСТЕНИИ
+  }
+  
+  delay(1000);
 }
 
 // временная функция ----------------------------------------------------------------
@@ -116,20 +134,35 @@ void sendDebugInfo() {
 }
 //----------------------------------------------------------------------------------------
 //отправка данных о растении
-void sendPlantData(PlantStateData data) {
-  Serial.println();
-}
+void makeAndSendPlantData() {
+  StaticJsonBuffer<plantCapacity> jb;
+  JsonObject& obj = jb.createObject();
+  obj["plantID"] = currentPlantInfo.plantID;
+  obj["currentDate"] = rtc.getDateStr();
+  obj["currentTime"] = rtc.getTimeStr();
+  obj["temperature"] = checkTemperature();
+  obj["groundHum"] = checkGroundHum();
+  obj["airHum"] = checkAirHum();
+  obj["waterLevel"] = currentDevState.waterLevel;
+//  obj["bright"] = checkBrightness();
+  String res = "";
+  obj.printTo(res);
+  Serial.println(res);
 
-//отправка данных о состоянии устройства
-void sendStatusData() {
-  Serial.println();
+  /*
+  byte   plantID;         // номер растения
+  String currentDate;     // текущая дата
+  String currentTime;     // текущее время
+  float  temperature;     // температура воздуха
+  byte   groundHum;       // влажность почвы
+  byte   airHum;          // влажность воздуха
+  byte   bright;          // освещенность*/
 }
 
 //получение данных о новом растении
 void getPlantData() {
 
 }
-
 
 //полив
 boolean watering(boolean isWatering) {
@@ -178,6 +211,17 @@ int checkGroundHum() {
   return analogRead(HUM_PIN);
 }
 
+// проверка влажности воздуха
+float checkAirHum() {
+  return tempHudtmSensor.readHumidity();
+}
+
+// проверка температуры
+float checkTemperature() {
+  return tempHudtmSensor.readTemperature();
+}
+
+// проверка состояния устройства, вылавливание ошибок в работе
 void checkState() {
   if (Serial) {
     digitalWrite(STAT_LED_NOCONNECT, LOW);
@@ -195,10 +239,43 @@ void checkState() {
   }
 }
 
+//восстановление после сбоев
 void checkErrorsAndRepair() {
   //восстанавливаем работу после долива воды
   if (currentDevState.waterLevel > MIN_WATER_LEVEL && hasErrorsWhileWatering){
     watering(true);
     hasErrorsWhileWatering = false;
+  }
+}
+
+// ПАРСИНГ ПРИХОДЯЩИХ ЗНАЧЕНИЙ
+void parsing() {
+  while (Serial.available() > 0) {
+    char incomingByte = Serial.read();      // обязательно ЧИТАЕМ входящий символ
+    if (incomingByte == '$') {              // если это $
+      getStarted = true;                    // поднимаем флаг, что можно парсить
+    } else if (incomingByte != ';' && getStarted) { // пока это не ;
+      // в общем происходит всякая магия, парсинг осуществляется функцией strtok_r
+      inputData[index] = incomingByte;
+      index++;
+      inputData[index] = '\0';
+    } else {
+      if (getStarted) {
+        char *p = inputData;
+        char *str;
+        index = 0;
+        String value = "";
+        while ((str = strtok_r(p, " ", & p)) != NULL) {
+          string_convert = str;
+          intData[index] = string_convert.toInt();
+          index++;
+        }
+        index = 0;
+      }
+    }
+    if (incomingByte == ';') {        // если таки приняли ; - конец парсинга
+      getStarted = false;
+      recievedFlag = true;
+    }
   }
 }
