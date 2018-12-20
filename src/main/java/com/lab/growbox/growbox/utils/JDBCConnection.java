@@ -6,7 +6,7 @@ import java.sql.*;
 
 public class JDBCConnection {
     // JDBC URL, username and password of MySQL server
-    private static final String url = "jdbc:mysql://localhost:3306/growbox";
+    private static final String url = "jdbc:mysql://localhost:3306/growbox?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true";
     private static final String user = "user";
     private static final String password = "user";
 
