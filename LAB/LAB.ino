@@ -1,19 +1,7 @@
 #include <DHT.h>
 #include <DS3231.h>
-#include <GyverTimer.h>
 #include <ArduinoJson.h>
 // DATA STRUCTURES ------------------------------------------------------------
-// состояние растения
-//struct PlantStateData {
-//  byte   plantID;         // номер растения
-//  String currentDate;     // текущая дата
-//  String currentTime;     // текущее время
-//  float  temperature;     // температура воздуха
-//  int    groundHum;       // влажность почвы
-//  float  airHum;          // влажность воздуха
-//  float  bright;          // освещенность
-//};
-
 // состояние поливалки
 struct DeviceStateData {
   byte waterLevel;      // уровень воды
@@ -22,10 +10,11 @@ struct DeviceStateData {
 
 // данные о растении, необх для работы поливалки
 struct PlantInfo {
-  byte plantID;                    // номер растения
-  int  wateringFrequency;          // частота полива
-  int  wateringGroundHumThreshold; // условия полива по влажности почвы
-  int  wateringAitHumThreshold;    // условия полива по влажности воздуха
+  int   wateringFrequency;          // частота полива
+  int   wateringGroundHumThreshold; // условия полива по влажности почвы
+  float wateringAitHumThreshold;    // условия полива по влажности воздуха
+  byte  wtHour;    //час полива
+  byte  wtMinute;  //минта полива
 };
 
 // VARIABLES & CONST -------------------------------------------------------------------------
@@ -44,12 +33,19 @@ struct PlantInfo {
 
 DHT tempHudtmSensor(DHTPIN, DHTTYPE);
 DS3231  rtc(SDA, SCL);
+Time    currentTime;
 
-float MIN_WATER_LEVEL = 5.0; //в сантиметрах высота погруженной помпы - уровень, ниже которого опускаться нельзя
-float TANK_HEIGHT = 20.0;    //в сантиметрах высота от дна банки до датчика расстояния
+int   WATERING_TIMING = 1500;   //продолжительность полива в миллисекундах
+float MIN_WATER_LEVEL = 5.0;    //в сантиметрах высота погруженной помпы - уровень, ниже которого опускаться нельзя
+float TANK_HEIGHT = 20.0;       //в сантиметрах высота от дна банки до датчика расстояния
+float MIN_AIR_HUM = 40.0;
+int   MIN_GROUNG_HUM = 300;
+byte  DEFAULT_WATERING_TIME = 12;
+
 byte errors = 0; // код ошибки (0 - ok, 1 - no water, 2 -no sensors avaiable, 3 - no connection)
 
 boolean isWateringInProcess = false;
+int     waterintStartTime = 0;
 boolean hasErrorsWhileWatering = false;
 
 //данные о растениях, пр, тд
@@ -59,16 +55,13 @@ PlantInfo       currentPlantInfo; // данные о подопечном рас
 //ARDUINO JSON
 const int plantCapacity = JSON_OBJECT_SIZE(10);
 
-//TODO ПЕРЕДЕЛАТЬ ЭТО ВСЕ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//ПОЛУЧЕНИЕ ДАННЫХ ОТ ПРИЛОЖЕНИЯ (BY GYVER)
-#define PARSE_AMOUNT 5       // число значений в массиве, который хотим получить
-#define INPUT_AMOUNT 80      // максимальное количество символов в пакете, который идёт в сериал
-char inputData[INPUT_AMOUNT];  // массив входных значений (СИМВОЛЫ)
+//PARSER
+#define PARSE_AMOUNT 3         // число значений в массиве, который хотим получить
 int intData[PARSE_AMOUNT];     // массив численных значений после парсинга
 boolean recievedFlag;
 boolean getStarted;
 byte index;
-String string_convert;
+String string_convert = "";
 //---------------------------------------------------------------------------------------
 //INITIALIZATION
 void setup() {
@@ -85,69 +78,44 @@ void setup() {
   pinMode(STAT_LED_WATER, OUTPUT);
   pinMode(STAT_LED_NOCONNECT, OUTPUT);
 
-  currentPlantInfo.plantID = 0;
   currentPlantInfo.wateringFrequency = 0;
-  currentPlantInfo.wateringGroundHumThreshold = 0;
-  currentPlantInfo.wateringAitHumThreshold = 0;
+  currentPlantInfo.wateringGroundHumThreshold = MIN_GROUNG_HUM;
+  currentPlantInfo.wateringAitHumThreshold = MIN_AIR_HUM;
+  currentPlantInfo.wtHour = DEFAULT_WATERING_TIME;
+  currentPlantInfo.wtMinute = 0;
 
   checkState();
 }
 
 //MAIN LOOP
 void loop() {
-//  sendDebugInfo();
   makeAndSendPlantData();
   checkState();
-
-  parsing();       // функция парсинга
-  if (recievedFlag) {                           // если получены данные
-    recievedFlag = false;
-    // ЗАПИХИВАЕМ ДАННЫЕ В ПАЧКУ О РАСТЕНИИ
+  if (isWateringNeed()){
+    watering(true);
   }
-  
-  delay(1000);
-}
-
-// временная функция ----------------------------------------------------------------
-void sendDebugInfo() {
-  float h = tempHudtmSensor.readHumidity();
-  float t = tempHudtmSensor.readTemperature();
-  Serial.print("Temp ");
-  Serial.print(t);
-  Serial.print(" hadtm ");
-  Serial.print(h);
-  Serial.print(" dist ");
-  Serial.println(checkWaterLevel());
-
-  Serial.print("Brightnes: ");
-  Serial.print(checkBrightness());
-  Serial.print(" ground hudtm: ");
-  Serial.println(checkGroundHum());
-
-  // Send date
-  Serial.print(rtc.getDateStr());
-  Serial.print(" ");
-  // Send time
-  Serial.println(rtc.getTimeStr());
-
-  Serial.println("*--------------------------------------------------------------------");
+  if (isStopWatering()){
+    watering(false);
+  }
+  forseWatering();
+  readDataFromHost();
+  delay(2000);
 }
 //----------------------------------------------------------------------------------------
 //отправка данных о растении
 void makeAndSendPlantData() {
   StaticJsonBuffer<plantCapacity> jb;
   JsonObject& obj = jb.createObject();
-  obj["plantID"] = currentPlantInfo.plantID;
-  obj["currentDate"] = rtc.getDateStr();
-  obj["currentTime"] = rtc.getTimeStr();
+  obj["time"] = rtc.getTimeStr();
+  obj["date"] = rtc.getDateStr();
   obj["temperature"] = checkTemperature();
   obj["groundHum"] = checkGroundHum();
   obj["airHum"] = checkAirHum();
   obj["waterLevel"] = currentDevState.waterLevel;
-//  obj["bright"] = checkBrightness();
+  obj["bright"] = checkBrightness();
   String res = "";
   obj.printTo(res);
-  Serial.println(res);
+  Serial.print(res);
 
   /*
   byte   plantID;         // номер растения
@@ -159,9 +127,14 @@ void makeAndSendPlantData() {
   byte   bright;          // освещенность*/
 }
 
-//получение данных о новом растении
-void getPlantData() {
+boolean isWateringNeed() {
+  currentTime = rtc.getTime();
+  return currentTime.hour == currentPlantInfo.wtHour &&
+      currentTime.min == currentPlantInfo.wtMinute;
+}
 
+boolean isStopWatering() {
+  return (waterintStartTime != 0 && millis() > waterintStartTime + WATERING_TIMING);
 }
 
 //полив
@@ -170,14 +143,31 @@ boolean watering(boolean isWatering) {
      если бак не пустой, то поливаем
   */
   if (isWatering && checkWaterLevel() > MIN_WATER_LEVEL) {
-    digitalWrite(WATERING_PIN, LOW);
-    isWateringInProcess = true;
+    if (!isWateringInProcess) {
+      digitalWrite(WATERING_PIN, LOW);
+      isWateringInProcess = true;
+      //ТУТ СТАВИМ ТАЙМЕР, КОТОРЫЙ ВЫЗОВЕТ ОТСТАНОВКУ ПОЛИВА
+      waterintStartTime = millis();
+      if (waterintStartTime == 0){
+        waterintStartTime += 1;
+      }
+    }
     return true;
   } else {
     digitalWrite(WATERING_PIN, HIGH);
     isWateringInProcess = false;
+    waterintStartTime = 0;
     return false;
   }
+}
+
+//ПРИНУДИТЕЛЬНЫЙ ПОЛИВ
+void forseWatering(){
+  if (!isWateringInProcess && !hasErrorsWhileWatering &&
+        checkGroundHum() < currentPlantInfo.wateringGroundHumThreshold) 
+    {
+      watering(true);
+    }
 }
 
 //-------------------------------------------------------------------------------
@@ -248,32 +238,36 @@ void checkErrorsAndRepair() {
   }
 }
 
+//Чтение настроек с компа
+void readDataFromHost(){
+  parsing();               // функция парсинга
+  if (recievedFlag) {      // если получены данные
+    recievedFlag = false;
+    currentPlantInfo.wateringFrequency = intData[2];
+    currentPlantInfo.wtHour = intData[0];
+    currentPlantInfo.wtMinute = intData[1];
+  }
+}
+
 // ПАРСИНГ ПРИХОДЯЩИХ ЗНАЧЕНИЙ
 void parsing() {
-  while (Serial.available() > 0) {
-    char incomingByte = Serial.read();      // обязательно ЧИТАЕМ входящий символ
-    if (incomingByte == '$') {              // если это $
-      getStarted = true;                    // поднимаем флаг, что можно парсить
-    } else if (incomingByte != ';' && getStarted) { // пока это не ;
-      // в общем происходит всякая магия, парсинг осуществляется функцией strtok_r
-      inputData[index] = incomingByte;
-      index++;
-      inputData[index] = '\0';
-    } else {
-      if (getStarted) {
-        char *p = inputData;
-        char *str;
-        index = 0;
-        String value = "";
-        while ((str = strtok_r(p, " ", & p)) != NULL) {
-          string_convert = str;
-          intData[index] = string_convert.toInt();
-          index++;
-        }
-        index = 0;
+  if (Serial.available() > 0) {
+    char incomingByte = Serial.read();        // обязательно ЧИТАЕМ входящий символ
+    if (getStarted) {                         // если приняли начальный символ (парсинг разрешён)
+      if (incomingByte != ' ' && incomingByte != ';') {   // если это не пробел И не конец
+        string_convert += incomingByte;                   // складываем в строку
+      } else {                                            // если это пробел или ; конец пакета
+        intData[index] = string_convert.toInt();
+        string_convert = "";
+        index++;
       }
     }
-    if (incomingByte == ';') {        // если таки приняли ; - конец парсинга
+    if (incomingByte == '$') {                // если $ - парисм, данные пришли
+      getStarted = true;
+      index = 0;
+      string_convert = "";
+    }
+    if (incomingByte == ';') {                // если таки приняли ; - конец парсинга
       getStarted = false;
       recievedFlag = true;
     }
