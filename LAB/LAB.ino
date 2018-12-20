@@ -35,7 +35,7 @@ DHT tempHudtmSensor(DHTPIN, DHTTYPE);
 DS3231  rtc(SDA, SCL);
 Time    currentTime;
 
-int   WATERING_TIMING = 15000;  //продолжительность полива в миллисекундах
+int   WATERING_TIMING = 1500;   //продолжительность полива в миллисекундах
 float MIN_WATER_LEVEL = 5.0;    //в сантиметрах высота погруженной помпы - уровень, ниже которого опускаться нельзя
 float TANK_HEIGHT = 20.0;       //в сантиметрах высота от дна банки до датчика расстояния
 float MIN_AIR_HUM = 40.0;
@@ -53,7 +53,7 @@ DeviceStateData currentDevState; // данные о состоянии поли�
 PlantInfo       currentPlantInfo; // данные о подопечном растении
 
 //ARDUINO JSON
-const int plantCapacity = JSON_OBJECT_SIZE(9);
+const int plantCapacity = JSON_OBJECT_SIZE(10);
 
 //PARSER
 #define PARSE_AMOUNT 3         // число значений в массиве, который хотим получить
@@ -99,42 +99,15 @@ void loop() {
   }
   forseWatering();
   readDataFromHost();
-  delay(1000);
-}
-
-// временная функция ----------------------------------------------------------------
-void sendDebugInfo() {
-  float h = tempHudtmSensor.readHumidity();
-  float t = tempHudtmSensor.readTemperature();
-  Serial.print("Temp ");
-  Serial.print(t);
-  Serial.print(" hadtm ");
-  Serial.print(h);
-  Serial.print(" dist ");
-  Serial.println(checkWaterLevel());
-
-  Serial.print("Brightnes: ");
-  Serial.print(checkBrightness());
-  Serial.print(" ground hudtm: ");
-  Serial.println(checkGroundHum());
-
-  // Send date
-  Serial.print(rtc.getDateStr());
-  Serial.print(" ");
-  // Send time
-  Serial.println(rtc.getTimeStr());
-
-  Serial.println("*--------------------------------------------------------------------");
+  delay(2000);
 }
 //----------------------------------------------------------------------------------------
 //отправка данных о растении
 void makeAndSendPlantData() {
-  String currentDataTime = rtc.getDateStr();
-  currentDataTime.concat(" ");
-  currentDataTime.concat(rtc.getTimeStr());
   StaticJsonBuffer<plantCapacity> jb;
   JsonObject& obj = jb.createObject();
-  obj["currentDate"] = currentDataTime;
+  obj["time"] = rtc.getTimeStr();
+  obj["date"] = rtc.getDateStr();
   obj["temperature"] = checkTemperature();
   obj["groundHum"] = checkGroundHum();
   obj["airHum"] = checkAirHum();
