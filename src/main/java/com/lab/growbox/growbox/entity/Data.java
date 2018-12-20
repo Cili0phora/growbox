@@ -17,10 +17,24 @@ public class Data {
     private Time time;
     private float temperature;
     private int groundHum;
-    private int airHum;
+    private float airHum;
     private int waterLevel;
+    private float bright;
 
-    public Data(int id, Date date, Time time, float temperature, int groundHum, int airHum, int waterLevel) {
+    public Data() {
+    }
+
+    public Data(Date date, Time time, float temperature, int groundHum, float airHum, int waterLevel, float bright) {
+        this.date = date;
+        this.time = time;
+        this.temperature = temperature;
+        this.groundHum = groundHum;
+        this.airHum = airHum;
+        this.waterLevel = waterLevel;
+        this.bright = bright;
+    }
+
+    public Data(int id, Date date, Time time, float temperature, int groundHum, float airHum, int waterLevel, float bright) {
         this.id = id;
         this.date = date;
         this.time = time;
@@ -28,18 +42,7 @@ public class Data {
         this.groundHum = groundHum;
         this.airHum = airHum;
         this.waterLevel = waterLevel;
-    }
-
-    public Data(Date date, Time time, float temperature, int groundHum, int airHum, int waterLevel) {
-        this.date = date;
-        this.time = time;
-        this.temperature = temperature;
-        this.groundHum = groundHum;
-        this.airHum = airHum;
-        this.waterLevel = waterLevel;
-    }
-
-    public Data() {
+        this.bright = bright;
     }
 
     public int getId() {
@@ -74,14 +77,6 @@ public class Data {
         this.temperature = temperature;
     }
 
-    public int getAirHum() {
-        return airHum;
-    }
-
-    public void setAirHum(int airHum) {
-        this.airHum = airHum;
-    }
-
     public int getGroundHum() {
         return groundHum;
     }
@@ -90,12 +85,28 @@ public class Data {
         this.groundHum = groundHum;
     }
 
+    public float getAirHum() {
+        return airHum;
+    }
+
+    public void setAirHum(float airHum) {
+        this.airHum = airHum;
+    }
+
     public int getWaterLevel() {
         return waterLevel;
     }
 
     public void setWaterLevel(int waterLevel) {
         this.waterLevel = waterLevel;
+    }
+
+    public float getBright() {
+        return bright;
+    }
+
+    public void setBright(float bright) {
+        this.bright = bright;
     }
 
     @Override
@@ -108,6 +119,7 @@ public class Data {
                 ", groundHum=" + groundHum +
                 ", airHum=" + airHum +
                 ", waterLevel=" + waterLevel +
+                ", bright=" + bright +
                 '}';
     }
 }

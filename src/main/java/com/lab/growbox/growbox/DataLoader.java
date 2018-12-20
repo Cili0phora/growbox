@@ -1,5 +1,7 @@
 package com.lab.growbox.growbox;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.lab.growbox.growbox.entity.Data;
 import com.lab.growbox.growbox.repository.DataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +31,11 @@ public class DataLoader  implements ApplicationRunner {
             data.setTemperature(20);
             data.setGroundHum(3);
             data.setWaterLevel(60);
+            data.setBright(55);
             dataRepository.save(data);
+
+            Gson gson = new GsonBuilder().setDateFormat("dd.mm.yyyy HH:mm:ss").create();
+            System.out.println(gson.toJson(data));
 
             data = new Data();
             data.setAirHum(12);
@@ -38,6 +44,7 @@ public class DataLoader  implements ApplicationRunner {
             data.setTemperature(21);
             data.setGroundHum(4);
             data.setWaterLevel(50);
+            data.setBright(55);
             dataRepository.save(data);
 
             data = new Data();
@@ -47,6 +54,7 @@ public class DataLoader  implements ApplicationRunner {
             data.setTemperature(25);
             data.setGroundHum(4);
             data.setWaterLevel(40);
+            data.setBright(55);
             dataRepository.save(data);
 
             data = new Data();
@@ -56,6 +64,7 @@ public class DataLoader  implements ApplicationRunner {
             data.setTemperature(26);
             data.setGroundHum(5);
             data.setWaterLevel(40);
+            data.setBright(55);
             dataRepository.save(data);
 
             data = new Data();
@@ -65,7 +74,9 @@ public class DataLoader  implements ApplicationRunner {
             data.setTemperature(26);
             data.setGroundHum(5);
             data.setWaterLevel(50);
+            data.setBright(55);
             dataRepository.save(data);
+
 
             data = new Data();
             data.setAirHum(11);
@@ -74,6 +85,7 @@ public class DataLoader  implements ApplicationRunner {
             data.setTemperature(20);
             data.setGroundHum(3);
             data.setWaterLevel(60);
+            data.setBright(55);
             dataRepository.save(data);
 
             data = new Data();
@@ -83,6 +95,7 @@ public class DataLoader  implements ApplicationRunner {
             data.setTemperature(21);
             data.setGroundHum(4);
             data.setWaterLevel(50);
+            data.setBright(55);
             dataRepository.save(data);
 
             data = new Data();
@@ -92,6 +105,7 @@ public class DataLoader  implements ApplicationRunner {
             data.setTemperature(25);
             data.setGroundHum(4);
             data.setWaterLevel(40);
+            data.setBright(55);
             dataRepository.save(data);
 
             data = new Data();
@@ -101,6 +115,7 @@ public class DataLoader  implements ApplicationRunner {
             data.setTemperature(26);
             data.setGroundHum(5);
             data.setWaterLevel(40);
+            data.setBright(55);
             dataRepository.save(data);
 
             data = new Data();
@@ -110,6 +125,7 @@ public class DataLoader  implements ApplicationRunner {
             data.setTemperature(26);
             data.setGroundHum(2);
             data.setWaterLevel(20);
+            data.setBright(55);
             dataRepository.save(data);
         }
     }

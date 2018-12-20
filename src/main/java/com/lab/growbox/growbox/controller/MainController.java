@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import com.google.gson.Gson;
 
 import java.util.Arrays;
@@ -28,7 +27,7 @@ public class MainController {
 
         int[] groundHum = new int[dataList.size()];
         float[] temperature = new float[dataList.size()];
-        int[] airHum = new int[dataList.size()];
+        float[] airHum = new float[dataList.size()];
         String[] labels = new String[dataList.size()];
 
         for (int i = 0; i<=dataList.size()-1; i++) {
