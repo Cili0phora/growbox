@@ -14,7 +14,7 @@ public class Data {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private int id;
     private Date date;
-    private Time time;
+    private long time;
     private float temperature;
     private int groundHum;
     private float airHum;
@@ -24,7 +24,7 @@ public class Data {
     public Data() {
     }
 
-    public Data(Date date, Time time, float temperature, int groundHum, float airHum, int waterLevel, float bright) {
+    public Data(Date date, long time, float temperature, int groundHum, float airHum, int waterLevel, float bright) {
         this.date = date;
         this.time = time;
         this.temperature = temperature;
@@ -34,7 +34,7 @@ public class Data {
         this.bright = bright;
     }
 
-    public Data(int id, Date date, Time time, float temperature, int groundHum, float airHum, int waterLevel, float bright) {
+    public Data(int id, Date date, long time, float temperature, int groundHum, float airHum, int waterLevel, float bright) {
         this.id = id;
         this.date = date;
         this.time = time;
@@ -61,11 +61,11 @@ public class Data {
         this.date = date;
     }
 
-    public Time getTime() {
+    public long getTime() {
         return time;
     }
 
-    public void setTime(Time time) {
+    public void setTime(long time) {
         this.time = time;
     }
 

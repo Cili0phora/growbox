@@ -23,12 +23,12 @@
     </form>
 </nav>
 <div class="container">
-    <div class="container">
+    <form class="container" method="post" action="updateWatering">
         <h2 class="row col">Настройка полива</h2>
         <div class="row">
             <label class="col-md-4" for="time">Время полива</label>
             <div class="col" >
-                <input type="time" id="time" required>
+                <input type="time" name="time" id="time" required>
             </div>
         </div>
         <div class="row">
@@ -37,15 +37,38 @@
                 <input type="number" name="period" id="period" required>
             </div>
         </div>
-        <div class="col-md-12">
-            <button type="button" class="btn btn-primary row col" style="width: 150px;">Подтвердить</button>
+        <div class="row">
+            <div class="col">
+                <input type="checkbox" class="form-check-input" id="check" onchange="eventHook()">
+                <label class="form-check-label" style="margin-left: 30px;" for="check">Скорректировать дату и время на устройстве</label>
+            </div>
         </div>
-    </div>
+        <div class=""id="datetime" style="display: none">
+            <div class="row">
+                <label class="col-md-4" for="cDate">Дата</label>
+                <div class="col">
+                    <input type="date" name="cDate" id="cDate" required style="width: 150px ">
+                </div>
+            </div>
+            <div class="row">
+                <label class="col-md-4" for="cTime">Время</label>
+                <div class="col">
+                    <input type="time" name="cTime" id="cTime" required>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary row col" style="width: 150px;">Подтвердить</button>
+        </div>
+
+
+    </form>
 </div>
 
 <script src="./resources/js/jquery-3.3.1.min.js"></script>
 <script src="./resources/js/bootstrap.min.js"></script>
 <script src="./resources/js/Chart.min.js"></script>
-<script src="./resources/js/chart-settings.js"></script>
+<script src="./resources/js/settings.js"></script>
 </body>
 </html>

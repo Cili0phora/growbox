@@ -6,7 +6,7 @@ import java.sql.*;
 
 public class JDBCConnection {
     // JDBC URL, username and password of MySQL server
-    private static final String url = "jdbc:mysql://localhost:3306/growbox?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true";
+    private static final String url = "jdbc:postgresql://localhost/growbox";
     private static final String user = "user";
     private static final String password = "user";
 
@@ -22,24 +22,17 @@ public class JDBCConnection {
     public boolean save(Data data) {
         try {
             Connection con = getConnection();
-            String SQL = "INSERT INTO data " +
-                    "(`air_hum`," +
-                    "`bright`," +
-                    "`date`," +
-                    "`time`," +
-                    "`ground_hum`," +
-                    "`temperature`," +
-                    "`water_level`) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
-            System.out.println(SQL);
+            String SQL = "INSERT INTO public.data(\n" +
+                    "\tair_hum, bright, date, ground_hum, temperature, time, water_level)\n" +
+                    "\tVALUES (?, ?, ?, ?, ?, ?, ?);";
+            System.out.println("INSERT" + data.toString());
             PreparedStatement statement = con.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
-
             statement.setFloat(1, data.getAirHum());
             statement.setFloat(2, data.getBright());
             statement.setDate(3, data.getDate());
-            statement.setTime(4, data.getTime());
-            statement.setInt(5, data.getGroundHum());
-            statement.setFloat(6, data.getTemperature());
+            statement.setInt(4, data.getGroundHum());
+            statement.setFloat(5, data.getTemperature());
+            statement.setLong(6, data.getTime());
             statement.setInt(7, data.getWaterLevel());
 
 

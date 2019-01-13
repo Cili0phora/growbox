@@ -6,21 +6,20 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
 import java.lang.reflect.Type;
-import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class TimeDeserializer implements JsonDeserializer<Date> {
+public class TimeDeserializer implements JsonDeserializer {
 
     private static final String DATE_FORMAT = "HH:mm:ss";
 
     @Override
-    public Time deserialize(JsonElement jsonElement, Type typeOF,
-                            JsonDeserializationContext context) throws JsonParseException {
+    public Object deserialize(JsonElement jsonElement, Type typeOF,
+                              JsonDeserializationContext context) throws JsonParseException {
         try {
             Date utilDate =  new SimpleDateFormat(DATE_FORMAT).parse(jsonElement.getAsString());
-            return new Time(utilDate.getTime());
+            return utilDate.getTime();
         } catch (ParseException e) {
         }
         throw new JsonParseException("Unparseable date: \"" + jsonElement.getAsString()
