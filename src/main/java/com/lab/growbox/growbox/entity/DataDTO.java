@@ -1,57 +1,16 @@
 package com.lab.growbox.growbox.entity;
 
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import java.sql.Date;
 import java.sql.Time;
 
-@Entity
-public class Data {
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private int id;
+public class DataDTO {
     private Date date;
-    private long time;
+    private Time time;
     private float temperature;
     private int groundHum;
     private float airHum;
     private int waterLevel;
     private float bright;
-
-    public Data() {
-    }
-
-    public Data(Date date, long time, float temperature, int groundHum, float airHum, int waterLevel, float bright) {
-        this.date = date;
-        this.time = time;
-        this.temperature = temperature;
-        this.groundHum = groundHum;
-        this.airHum = airHum;
-        this.waterLevel = waterLevel;
-        this.bright = bright;
-    }
-
-    public Data(int id, Date date, long time, float temperature, int groundHum, float airHum, int waterLevel, float bright) {
-        this.id = id;
-        this.date = date;
-        this.time = time;
-        this.temperature = temperature;
-        this.groundHum = groundHum;
-        this.airHum = airHum;
-        this.waterLevel = waterLevel;
-        this.bright = bright;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public Date getDate() {
         return date;
@@ -61,11 +20,11 @@ public class Data {
         this.date = date;
     }
 
-    public long getTime() {
+    public Time getTime() {
         return time;
     }
 
-    public void setTime(long time) {
+    public void setTime(Time time) {
         this.time = time;
     }
 
@@ -111,10 +70,9 @@ public class Data {
 
     @Override
     public String toString() {
-        return "Data{" +
-                "id=" + id +
-                ", date=" + date +
-                ", time=" + new Time(time) +
+        return "DataDTO{" +
+                "date=" + date +
+                ", time=" + time +
                 ", temperature=" + temperature +
                 ", groundHum=" + groundHum +
                 ", airHum=" + airHum +

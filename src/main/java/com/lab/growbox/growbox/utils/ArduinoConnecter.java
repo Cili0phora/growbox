@@ -4,6 +4,7 @@ import arduino.Arduino;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.lab.growbox.growbox.entity.Data;
+import com.lab.growbox.growbox.entity.DataDTO;
 import com.lab.growbox.growbox.entity.Settings;
 
 import java.sql.Date;
@@ -30,12 +31,12 @@ public class ArduinoConnecter  extends Thread  {
     }
 
     public void run() {
-//        String s = "{\"time\":\"30005000\",\"date\":\"09.01.2000\",\"temperature\":24.4,\"groundHum\":1015,\"airHum\":31.6,\"waterLevel\":57,\"bright\":2}";
+//        String s = "{\"time\":\"06:34:17\",\"date\":\"09.01.2000\",\"temperature\":24.4,\"groundHum\":1015,\"airHum\":31.6,\"waterLevel\":57,\"bright\":2}";
 //
-//        Data data = gson.fromJson(s, Data.class);
-//        System.out.println(data.toString());
+//        DataDTO data = gson.fromJson(s, DataDTO.class);
+//        System.out.println(map(data).toString());
 //        jdbcConnection.save(data);
-//
+
 //        Settings settings = new Settings(5, new Time(11, 20, 5), new Time(12, 30, 00), new Date(2005, 12, 5));
 //        System.out.println(gson.toJson(settings));
 
@@ -60,8 +61,8 @@ public class ArduinoConnecter  extends Thread  {
                 if (!s.isEmpty() && s.substring(s.length() - 1).contains("}")) {
                     System.out.println("----" + s);
                     try {
-                        Data data = gson.fromJson(s, Data.class);
-                        jdbcConnection.save(data);
+                        DataDTO data = gson.fromJson(s, DataDTO.class);
+                        jdbcConnection.save(map(data));
                     } catch (Exception ex) {
 
                     } finally {
@@ -70,5 +71,17 @@ public class ArduinoConnecter  extends Thread  {
                 }
             }
         }
+    }
+
+    private Data map(DataDTO dataDTO) {
+        Data data = new Data();
+        data.setBright(dataDTO.getBright());
+        data.setDate(dataDTO.getDate());
+        data.setWaterLevel(dataDTO.getWaterLevel());
+        data.setGroundHum(dataDTO.getGroundHum());
+        data.setTemperature(dataDTO.getTemperature());
+        data.setTime(dataDTO.getTime().getTime());
+        data.setAirHum(dataDTO.getAirHum());
+        return data;
     }
 }
