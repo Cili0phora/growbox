@@ -1,6 +1,7 @@
 var ctx = document.getElementById("ground").getContext('2d');
 var groundData = $.parseJSON($("#ground").attr("data"));
 var labels = $.parseJSON($("#ground").attr("labels"));
+
 var myChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -24,7 +25,8 @@ var myChart = new Chart(ctx, {
                     beginAtZero:true
                 }
             }]
-        }
+        },
+        animation: false
     }
 });
 
@@ -66,6 +68,7 @@ var myChart = new Chart(ctx, {
                     beginAtZero:true
                 }
             }]
-        }
+        },
+        animation: false
     }
 });
